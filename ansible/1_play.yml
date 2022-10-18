@@ -1,0 +1,130 @@
+#---
+#- name: (TOOLS) Install of Requrements Tools
+#  hosts: all
+#  become: yes
+#  roles:
+#    - install-tools
+#  tags: tools
+#
+#- name: (PROXY) Up NGINX Revers Proxy
+#  hosts: proxy
+#  become: yes
+#  roles:
+#    - proxy
+#  tags: proxy
+#
+#- name: (DB MASTER) Install MariaDB Replication Master Server.
+#  hosts: db01
+#  become: yes
+#  vars:
+#    mysql_root_username: root
+#    mysql_root_password: "wordpress"
+#    mysql_replication_role: 'master'
+#    mysql_users:
+#      - { name: wordpress, host: "%", password: "wordpress", priv: "wordpress.*:GRANT,ALL" }
+#    mysql_replication_user:
+#      - { name: repl, host: "%", password: "wordpress", priv: "*.*:GRANT,REPLICATION SLAVE"}
+#  roles:
+#    - mysql
+#  tags:
+#    - db-inst
+#    - db
+#
+#- name: (DB REPLICA) Install MariaDB Replication Slave Server.
+#  hosts: db02
+#  become: yes
+#  vars:
+#    mysql_root_username: root
+#    mysql_root_password: "wordpress"
+#    mysql_replication_role: 'slave'
+#    mysql_users:
+#      - { name: wordpress, host: "%", password: "wordpress", priv: "*.*:GRANT,ALL" }
+#    mysql_replication_user:
+#      - { name: repl, host: "%", password: "wordpress", priv: "*.*:GRANT,REPLICATION SLAVE"}
+#  roles:
+#    - mysql
+#  tags:
+#    - db-inst
+#    - db
+#
+#- name: (DB MASTER) Set MariaDB Master Replication.
+#  hosts: db01
+#  become: yes
+#  gather_facts: false
+#  vars:
+#    mysql_root_username: root
+#    mysql_root_password: "wordpress"
+#    mysql_replication_role: 'master'
+#    mysql_users:
+#      - { name: wordpress, host: "%", password: "wordpress", priv: "*.*:GRANT,ALL" }
+#    mysql_replication_user:
+#      - { name: repl, host: "%", password: "wordpress", priv: "*.*:GRANT,REPLICATION SLAVE"}
+#  roles:
+#    - repl-mysql
+#  tags:
+#    - db-repl
+#    - db
+#
+#- name: (DB REPLICA) Set MariaDB Replica Replication.
+#  hosts: db02
+#  become: yes
+#  gather_facts: false
+#  vars:
+#    mysql_root_username: root
+#    mysql_root_password: "wordpress"
+#    mysql_replication_role: 'slave'
+#    mysql_users:
+#      - { name: wordpress, host: "%", password: "wordpress", priv: "*.*:GRANT,ALL" }
+#    mysql_replication_user:
+#      - { name: repl, host: "%", password: "wordpress", priv: "*.*:GRANT,REPLICATION SLAVE"}
+#    mysql_replication_master: 192.168.20.21
+#  roles:
+#    - repl-mysql
+#  tags:
+#    - db-repl
+#    - db
+#
+#- name: (WORDPRESS) Up Wordpress server
+#  hosts: app
+#  become: yes
+#  roles:
+#   - wordpress
+#  tags: wordpress
+#
+#- name: (GITLAB) Up Gitlab server
+#  hosts: gitlab
+#  become: yes
+#  roles:
+#   - gitlab
+#  tags: gitlab
+#
+#- name: (RUNNER) Up Runner server
+#  hosts: runner
+#  become: yes
+#  roles:
+#    - runner
+#  tags: gitlab
+
+#- name: (MONITOR) Install node-exporter
+#  hosts: all
+#  become: yes
+#  roles:
+#    - node-exporter
+
+#- name: (MONITOR) Install NGINX
+#  hosts: monitor
+#  become: yes
+#  roles:
+#    - nginx
+
+- name: (MONITOR) Install Prometheus
+  hosts: monitor
+  become: yes
+  roles:
+    - Prometheus
+
+- name: (MONITOR) Install Grafana
+  hosts: monitor
+  become: yes
+  roles:
+    - Grafana

@@ -1,0 +1,113 @@
+---
+- name: apt-key add
+  ansible.builtin.apt_key:
+    keyring: "/etc/apt/trusted.gpg.d/mariadb.gpg"
+    url: "{{ item.url }}"
+    id: "{{ item.id }}"
+    state: "{{ item.state }}"
+  loop:
+    - keyring: "/etc/apt/trusted.gpg.d/mariadb.gpg"
+      url: "http://mariadb.org/mariadb_release_signing_key.asc"
+      id: "177F4010FE56CA3336300305F1656F24C74CD1D8"
+      state: "present"
+    - keyring: "/etc/apt/trusted.gpg.d/home_alvistack.gpg"
+      url: "http://downloadcontent.opensuse.org/repositories/home:/alvistack/xUbuntu_22.04/Release.key"
+      id: "789CFFDE0295B8A1F4E5690C4BECC97550D0B1FD"
+      state: "present"
+  register: result
+  until: result is succeeded
+
+- name: apt-add-repository
+  ansible.builtin.apt_repository:
+    filename: "{{ item.filename }}"
+    repo: "{{ item.repo }}"
+    state: "{{ item.state }}"
+    mode: "{{ item.mode | default('0644') }}"
+  loop:
+    - filename: "mariadb"
+      repo: "deb [arch=amd64] http://mirror.mariadb.org/repo/10.8/ubuntu jammy main"
+      state: "present"
+    - filename: "home:alvistack"
+      repo: "deb http://downloadcontent.opensuse.org/repositories/home:/alvistack/xUbuntu_22.04/ /"
+      state: "present"
+  register: result
+  until: result is succeeded
+
+- name: Update apt-get repo and cache
+  apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+
+- name: apt-get install MySQL
+  ansible.builtin.apt:
+    state: "{{ item.state }}"
+    name: "{{ item.name | default(None) or omit }}"
+    deb: "{{ item.deb | default(None) or omit }}"
+  loop:
+    - { state: "latest", name: "mariadb-server-10.8" }
+    - { state: "latest", name: "mariadb-backup" }
+    - { state: "latest", name: "socat" }
+    - { state: "latest", name: "peer-finder" }
+    - { state: "latest", name: "mysql-common" }
+  register: result
+  until: result is succeeded
+  notify:
+    - mariadb | systemctl restart mariadb.service
+
+- name: systemctl start mariadb.service
+  ansible.builtin.service:
+    name: "mariadb.service"
+    state: "started"
+    enabled: true
+  changed_when: false
+  failed_when: false
+
+
+- name: Install dependency
+  ansible.builtin.pip:
+    name: PyMySQL
+    state: latest
+    executable: pip3
+
+- name: update mysql root password for root account
+  mysql_user:
+    name: root
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    host: 'localhost'
+    password: '{{ mysql_root_password }}'
+    priv: "*.*:ALL,GRANT"
+    check_implicit_admin: true
+
+
+- name: copy .my.cnf file with root password from Master
+  become: yes
+  become_user: root
+  template: src=templates/.my-master.cnf dest=/root/.my.cnf owner=root mode=0600
+  when: mysql_replication_role == 'master'
+
+- name: copy .my.cnf file with root password from Slave
+  become: yes
+  become_user: root
+  template: src=templates/.my-slave.cnf dest=/root/.my.cnf owner=root mode=0600
+  when: mysql_replication_role == 'slave'
+
+- name: Set mysql root passwd
+  become: yes
+  become_user: root
+  community.mysql.mysql_user:
+    check_implicit_admin: yes
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    host: "{{ item }}"
+    user: root
+    password: "{{ mysql_root_password }}"
+  with_items:
+    - "{{ ansible_hostname }}"
+    - localhost
+#  tags:
+#    - set pass
+#  when: mysql_replication_role == 'master'
+
+- name: ReStart MariaDB
+  service:
+    name: mariadb
+    enabled: true
+    state: restarted

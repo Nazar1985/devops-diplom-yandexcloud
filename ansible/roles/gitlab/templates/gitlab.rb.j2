@@ -1,0 +1,44 @@
+##
+# gitlab rails setup
+##
+gitlab_rails['gitlab_email_from'] = "{{gitlab_email_from}}"
+gitlab_rails['gitlab_email_enabled'] = {{gitlab_email_enabled}}
+gitlab_rails['gitlab_email_display_name'] = "{{gitlab_email_display_name}}"
+gitlab_rails['gitlab_support_email'] = "{{gitlab_support_email}}"
+
+gitlab_rails['gitlab_ssh_host'] = "{{gitlab_ssh_host}}"
+gitlab_rails['time_zone'] = "{{gitlab_time_zone}}"
+
+##
+# NGINX config for main gitlab
+##
+external_url "{{gitlab_nginx_external_url}}"
+
+{% if gitlab_nginx_ssl_enable %}
+nginx['redirect_http_to_https'] = {{gitlab_nginx_redirect_http_to_https}}
+nginx['ssl_certificate']= "{{gitlab_nginx_ssl_certificate}}"
+nginx['ssl_certificate_key'] = "{{gitlab_nginx_ssl_certificate_key}}"
+{% endif %}
+
+nginx['custom_gitlab_server_config'] = "{{gitlab_nginx_custom_server_config}}"
+
+##
+# NGINX config for gitlab container registry
+##
+registry_external_url "{{gitlab_registry_nginx_external_url}}"
+
+{% if gitlab_registry_nginx_ssl_enable %}
+registry_nginx['redirect_http_to_https'] = {{gitlab_registry_nginx_redirect_http_to_https}}
+registry_nginx['ssl_certificate']= "{{gitlab_registry_nginx_ssl_certificate}}"
+registry_nginx['ssl_certificate_key'] = "{{gitlab_registry_nginx_ssl_certificate_key}}"
+{% endif %}
+registry_nginx['custom_gitlab_server_config']="{{gitlab_registry_nginx_custom_server_config}}"
+
+
+gitlab_rails['initial_shared_runners_registration_token'] = "$ecreTT0keN"
+
+gitlab_rails['initial_root_password'] = "P@$$w0rD"
+
+node_exporter['listen_address'] = '0.0.0.0:9100'
+
+prometheus['listen_address'] = '0.0.0.0:9090'

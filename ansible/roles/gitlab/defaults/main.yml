@@ -1,0 +1,25 @@
+---
+gitlab_email_from: 'gitlab@mymind.su'
+gitlab_email_display_name: 'Gitlab gitlab.mymind.su'
+gitlab_email_enabled: 'true'
+gitlab_support_email: 'gitlab@mymind.su'
+
+##
+# Gitlab general stuff
+gitlab_ssh_host: 'gitlab.mymind.su'
+gitlab_time_zone: 'Europe/Moscow'
+
+##
+# Gitlab primary NGINX
+gitlab_nginx_external_url: 'http://gitlab.mymind.su'
+gitlab_nginx_ssl_enable: false
+gitlab_nginx_redirect_http_to_https: 'false'
+gitlab_nginx_ssl_certificate: '/etc/letsencrypt/live/gitlab.example.com/fullchain.pem'
+gitlab_nginx_ssl_certificate_key: '/etc/letsencrypt/live/gitlab.example.com/privkey.pem'
+gitlab_nginx_custom_server_config: 'location ^~ /.well-known {\n alias /var/www/letsencrypt/.well-known;\n}\n'
+
+##
+# Gitlab registry NGINX
+gitlab_registry_nginx_external_url: 'http://registry.mymind.su'
+gitlab_registry_nginx_ssl_enable: false
+gitlab_registry_nginx_custom_server_config: 'location ^~ /.well-known {\n alias /var/www/letsencrypt/.well-known;\n}\n'

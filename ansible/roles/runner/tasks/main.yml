@@ -1,0 +1,74 @@
+---
+- name: Download and run script
+  shell: sudo curl -L "https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh" | sudo bash
+#  tags: test
+
+- name: Install runner
+  shell: sudo apt-get install gitlab-runner
+#  tags: test
+
+- name: Set SUDOERS for gitlab-runner
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    insertafter: "^root*"
+    line: "gitlab-runner ALL=(ALL:ALL) ALL"
+  tags: test
+
+- name: Set SUDOERS for gitlab-runner (NO PASS)
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    line: "gitlab-runner ALL=(ALL) NOPASSWD: ALL"
+  tags: test
+
+- name: Set
+  command: sudo gitlab-runner register -n --url http://gitlab --registration-token $ecreTT0keN --executor shell
+  tags: test
+
+
+#- name: Update cache
+#  shell: sudo apt-cache madison gitlab-runner
+#  tags: test
+
+#- name:
+#  shell:
+#  tags: test
+#
+#- name: Download and run script
+#  shell: sudo apt-get install gitlab-runner
+#  tags: test
+
+
+#  sudo docker run -d --name gitlab-runner --restart always -v /srv/gitlab-runner/config:/etc/gitlab-runne -v /var/run/docker.sock:/var/run/docker.sock gitlab/gitlab-runner:latest
+
+
+#- name: register runner
+#  ansible.builtin.raw: docker run --rm -it --net host --name gitlab-runner --privileged -v ~/gitlab-runner:/etc/gitlab-runner -v /var/run/docker.sock:/var/run/docker.sock gitlab/gitlab-runner:latest register --non-interactive --executor "shell" --url "{{  gitlab_url  }}" --registration-token "{{  gitlab_token  }}" --run-untagged="true" --locked="false"
+#  when: not register_check.stat.exists
+#
+#- name: start registered runner
+#  ansible.builtin.raw: docker run --rm -it -d --net host --name gitlab-runner --privileged -v ~/gitlab-runner:/etc/gitlab-runner -v /var/run/docker.sock:/var/run/docker.sock gitlab/gitlab-runner:latest
+#
+#- name: copy ssh key
+#  become: true
+#  copy:
+#    src: /home/vagrant/.ssh/id_rsa
+#    dest: /home/vagrant/gitlab-runner/id_rsa
+#    owner: 999
+#    group: 999
+#    mode: 0600
+#
+#- name: copy script for rsync in runner-container
+#  become: true
+#  copy:
+#    src: ./stack/rsync.sh
+#    dest: /home/vagrant/gitlab-runner/rsync.sh
+#    owner: 999
+#    group: 999
+#    mode: 0755
+#
+#- name: install rsync in runner container
+#  ansible.builtin.raw: docker exec -d  gitlab-runner '/etc/gitlab-runner/rsync.sh'
+#
+#- name: print instructions for initialisation repository
+#  debug:
+#          msg: cd ~ && gunzip -d /tmp/wordpress.tar.gz && tar -xf /tmp/wordpress.tar && cp /tmp/wp-config.php ./wordpress && cd wordpress && git init && git add * && git commit -m 'initial' && git branch -M main  && git -c http.sslVerify=false push https://root:{{  gitlab_password  }}@gitlab.netology.tech/root/wordpress main && cat /home/vagrant/diplom/devops-diplom/ansible/stack/.gitlab-ci.yml

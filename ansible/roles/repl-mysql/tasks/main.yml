@@ -1,0 +1,165 @@
+---
+- name: remove default bind-address
+  lineinfile:
+    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+    regexp: "^bind-address"
+    insertafter: 'bind-address'
+    line: ""
+    state: present
+
+- name: set my.cnf master
+  lineinfile:
+    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+#    regexp: "^bind-address"
+    insertafter: 'EOF'
+    line: "{{ item }}"
+    state: present
+  with_items:
+#    - '[mysqld]'
+    - 'bind-address = 0.0.0.0'
+    - 'server-id = 1'
+    - 'log_bin = /var/log/mysql/mysql-bin.log'
+    - 'binlog_do_db = wordpress'
+  when: mysql_replication_role == 'master'
+
+- name: set my.cnf slave
+  lineinfile:
+    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+#    regexp: "^bind-address"
+    insertafter: 'EOF'
+    line: "{{ item }}"
+    state: present
+  with_items:
+#    - '[mysqld]'
+    - 'bind-address = 0.0.0.0'
+    - 'server-id = 2'
+    - 'relay-log = /var/log/mysql/mysql-relay-bin.log'
+    - 'log_bin = /var/log/mysql/mysql-bin.log'
+    - 'binlog_do_db = wordpress'
+  when: mysql_replication_role == 'slave'
+
+- name: ReStart MariaDB
+  service:
+    name: mariadb
+    enabled: true
+    state: restarted
+  tags:
+    - repl_restart
+
+- name: Create a DB
+  community.mysql.mysql_db:
+    check_implicit_admin: yes
+    name: wordpress
+    state: present
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+#  when: mysql_replication_role == 'master'
+
+- name: Create user master
+  community.mysql.mysql_user:
+    name: "{{ item.name }}"
+    host: "{{ item.host }}"
+    password: "{{ item.password }}"
+    priv: "{{ item.priv }}"
+    state: present
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+  with_items: "{{ mysql_users }}"
+  tags:
+    - create user master
+
+- name: Create replication user on master
+  community.mysql.mysql_user:
+    name: "{{ item.name }}"
+    host: "{{ item.host }}"
+    password: "{{ item.password }}"
+    priv: "*.*:GRANT,REPLICATION SLAVE"
+    state: present
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+  with_items: "{{ mysql_replication_user }}"
+  when: mysql_replication_role == 'master'
+
+- name: Check master replication status.
+  mysql_replication:
+    mode: getprimary
+    login_user: root
+    login_password: "wordpress"
+  delegate_to: "{{ mysql_replication_master }}"
+  remote_user: ubuntu
+  register: master_status
+  when: mysql_replication_role == 'slave'
+
+- name: Show master replication status
+  debug:
+    var: master_status.File
+- name: Show master replication status
+  debug:
+    var: master_status.Position
+
+- name: Stop slave repl
+  community.mysql.mysql_replication:
+    mode: stopreplica
+#    primary_auto_position: true
+    primary_host: "{{ mysql_replication_master }}"
+    primary_user: "{{ item.name }}"
+    primary_password: "{{ item.password }}"
+    login_host: localhost
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+#    config_file: ""
+  with_items: "{{ mysql_replication_user }}"
+  when: mysql_replication_role == 'slave'
+
+- name: Configure slave repl
+  community.mysql.mysql_replication:
+    mode: changeprimary
+#    primary_auto_position: true
+    primary_host: "{{ mysql_replication_master }}"
+    primary_user: "{{ item.name }}"
+    primary_password: "{{ item.password }}"
+    primary_log_pos: "{{ master_status.Position}}"
+    primary_log_file: "{{ master_status.File}}"
+    login_host: localhost
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+#    config_file: ""
+  with_items: "{{ mysql_replication_user }}"
+  when: mysql_replication_role == 'slave'
+
+- name: Start slave repl
+  community.mysql.mysql_replication:
+    mode: startreplica
+    primary_auto_position: true
+    primary_host: "{{ mysql_replication_master }}"
+    primary_user: "{{ item.name }}"
+    primary_password: "{{ item.password }}"
+    login_host: localhost
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+#    config_file: ""
+  with_items: "{{ mysql_replication_user }}"
+  when: mysql_replication_role == 'slave'
+
+- name: Check slave replication status.
+  community.mysql.mysql_replication:
+    mode: getreplica
+    primary_auto_position: true
+    primary_host: "{{ mysql_replication_master }}"
+    primary_user: "{{ item.name }}"
+    primary_password: "{{ item.password }}"
+    login_host: localhost
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+#    config_file: ""
+  with_items: "{{ mysql_replication_user }}"
+  when: mysql_replication_role == 'slave'
+  register: slave_status
+  tags: statusrepl
+
+- name: Show slave replication status
+  debug:
+    var: slave_status
+  when: mysql_replication_role == 'slave'
+  tags: statusrepl
+

@@ -1,0 +1,47 @@
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+
+  external_labels:
+    monitor: 'prometheus'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+        - "10.10.10.10:9093"
+        - "192.168.20.21:9093"
+        - "192.168.20.22:9093"
+        - "192.168.20.30:9093"
+        - "192.168.20.40:9093"
+        - "192.168.20.50:9093"
+        - "192.168.20.60:9093"
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - "alert_rules.yml"
+
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+    scrape_timeout: 5s
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+      - targets:
+        - "10.10.10.10:9100"
+        - "192.168.20.21:9100"
+        - "192.168.20.22:9100"
+        - "192.168.20.30:9100"
+        - "192.168.20.40:9100"
+        - "192.168.20.50:9100"
+        - "192.168.20.60:9100"

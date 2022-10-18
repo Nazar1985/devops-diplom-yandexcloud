@@ -1,0 +1,29 @@
+worker_processes: auto
+worker_connections: 1024
+client_max_body_size: 512M
+
+sites:
+- domain: "www.mymind.su"
+  host: "192.168.20.30"
+  port: "80"
+  auth: "#"
+- domain: "gitlab.mymind.su"
+  host: "192.168.20.40"
+  port: "80"
+  auth: "#"
+- domain: "runner.mymind.su"
+  host: "192.168.20.50"
+  port: "80"
+  auth: "#"
+- domain: "grafana.mymind.su"
+  host: "192.168.20.60"
+  port: "3000"
+  auth: "#"
+- domain: "prometheus.mymind.su"
+  host: "192.168.20.60"
+  port: "9090"
+  auth: " "
+- domain: "alertmanager.mymind.su"
+  host: "192.168.20.60"
+  port: "9093"
+  auth: " "

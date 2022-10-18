@@ -1,0 +1,33 @@
+---
+- name: Install dependencies for gitlab
+  apt: name={{item}} state=present
+  with_items:
+    - postfix
+    - gnupg2
+
+- name: Update apt-get repo and cache
+  apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+
+- name: Download gitlab-ce.deb
+  get_url:
+    url: https://packages.gitlab.com/gitlab/gitlab-ce/packages/ubuntu/focal/gitlab-ce_15.4.2-ce.0_amd64.deb/download.deb
+    dest: /tmp/gitlab-ce.deb
+    mode: 0770
+
+- name: Install gitlab
+  command: dpkg -i gitlab-ce.deb
+  args:
+    chdir: "/tmp/"
+
+- name: Install dependencies
+  shell: sudo apt-get -f install
+
+- name: Place gitlab.rb config file
+  template:
+    src: gitlab.rb.j2
+    dest: /etc/gitlab/gitlab.rb
+    owner: root
+    mode: '0600'
+
+- name: Reconfigure gitlab
+  command: /usr/bin/gitlab-ctl reconfigure

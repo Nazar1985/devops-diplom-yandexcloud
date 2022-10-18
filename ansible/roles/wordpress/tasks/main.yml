@@ -1,0 +1,134 @@
+---
+- name: Installing tools
+  apt: >
+    name={{ item }}
+    state=present
+    update_cache=yes
+  with_items:
+    - nginx
+    - php8.1
+    - php8.1-cgi
+    - php8.1-fpm
+    - php8.1-mysql
+    - php8.1-curl
+
+- name: Replace nginx.conf
+  template:
+    src: templates/nginx.conf
+    dest: /etc/nginx/nginx.conf
+    mode: 0644
+    owner: root
+    group: root
+  tags: test
+
+- name: Disable default site
+  file:
+    path: /var/www/html
+    state: absent
+
+- name: Disable settings server nginx
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Disable settings server nginx
+  file:
+    path: /etc/nginx/sites-available/default
+    state: absent
+
+- name: Create home directory for www
+  file:
+    path: /var/www/{{ inventory_hostname }}
+    state: directory
+    mode: 0664
+    owner: www-data
+    group: www-data
+
+- name: Add virtual domain in Revers Proxy
+  vars:
+    fastcgi_pass_path: /var/run/php/php8.1-fpm.sock
+  block:
+    - name: set config
+      template:
+        src: templates/nginx_vhosts.conf
+        dest: /etc/nginx/sites-available/{{ inventory_hostname }}.conf
+        backup: true
+        mode: 0755
+    - name: set link
+      file:
+        src: /etc/nginx/sites-available/{{ inventory_hostname }}.conf
+        dest: /etc/nginx/sites-enabled/{{ inventory_hostname }}.conf
+        owner: root
+        group: root
+        state: link
+
+- name: Download and unpack latest WordPress
+  unarchive:
+    src: https://wordpress.org/latest.tar.gz
+    dest: "/var/www/"
+    remote_src: yes
+    creates: "/var/www/wordpress"
+    mode: 0644
+    owner: www-data
+    group: www-data
+
+- name: Move files
+  command: cp -rf . "/var/www/{{ inventory_hostname }}"
+  args:
+    chdir: "/var/www/wordpress/"
+
+- name: Copy sample config file
+  command: "mv /var/www/{{ inventory_hostname }}/wp-config-sample.php 
+               /var/www/{{ inventory_hostname }}/wp-config.php 
+               creates=/var/www/{{ inventory_hostname }}/wp-config.php"
+
+- name: del old dir wirdpress
+  file:
+    path: "/var/www/wordpress/"
+    state: absent
+
+- name: Download Salt
+  uri:
+    url: https://api.wordpress.org/secret-key/1.1/salt/
+    return_content: yes
+  become: False
+  register: 'salt_array'
+
+- name: Set wp_salt fact
+  set_fact:
+    wp_salt: '{{ salt_array.content }}'
+
+- name: Copy wp-config.php file
+  template:
+    src: wp-config.php.j2
+    dest: "/var/www/{{ inventory_hostname }}/wp-config.php"
+    owner: www-data
+    group: www-data
+
+- name: Set permissions for directories
+  shell: "/usr/bin/find /var/www/{{ inventory_hostname }}/ -type d -exec chmod 755 {} \\;"
+
+- name: Set permissions for files
+  shell: "/usr/bin/find /var/www/{{ inventory_hostname }}/ -type f -exec chmod 644 {} \\;"
+
+- name: Set ownership
+  file:
+    path: "/var/www/{{ inventory_hostname }}/"
+    state: directory
+    recurse: yes
+    owner: www-data
+    group: www-data
+
+- name: Restart php-fpm
+  service:
+    name: php8.1-fpm
+    enabled: true
+    state: restarted
+  tags: test
+
+- name: ReStart NGINX
+  service:
+    name: nginx
+    enabled: true
+    state: restarted
+  tags: test

@@ -1,0 +1,24 @@
+---
+- name: (MONITOR) Install node-exporter
+  hosts: all
+  become: yes
+  roles:
+    - node-exporter
+
+- name: (MONITOR) Install NGINX
+  hosts: monitor
+  become: yes
+  roles:
+    - nginx
+
+- name: (MONITOR) Install Prometheus
+  hosts: monitor
+  become: yes
+  roles:
+    - Prometheus
+
+- name: (MONITOR) Install Grafana
+  hosts: monitor
+  become: yes
+  roles:
+    - Grafana
