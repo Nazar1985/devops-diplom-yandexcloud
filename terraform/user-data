@@ -1,0 +1,11 @@
+#cloud-config
+users:
+  - default
+  - name: centos
+    gecos: terraform
+    groups: users, admin
+    shell: /bin/bash
+    lock_passwd: false
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDCtLeWCFcAXi9PDljf4aKcXLUb6RmCyTuCZ9zGu2WfeSkJzpu1NpVslkh1LRFHmO3SxEWynhwk753jCxd0ghgStNejIfvKuSgk/kUpG6nJQauUT6S54HIM791mdYlfjMaXrDuOPlzvkLAZ4N+5eCuFoqbZbehdp1ALLrhvGeGkZzYsQ6LM0jINyvSYyFgzPNdyk8cR2+SvHgNkJioSQ9tV9Rj02Owl5HfQx7Eobl8LBVU8MZde26lZGdQUPvl3fsRfxwzZeAHn+yCrbfXJQ81ZsKxO82ZFS7tPRF4mZE8WnZxxqql4mQ7m9xwuwIAs4TmgUY67LYY54WLG1kVtHqFP54Ho2Hx/SIfm1FERhyYj/DMloyB4brgULMSKEXfJHzPwunk09gziQxRwdhhbUGinnZo58wIMzTPMu/0wSeEoQiobFCtsJhqlOvL+IBcUH1V7mfpHWJKo6mIVcsJCZ3/zXzjIuCSuqAHaD+IjBHplmUC4KijGblblPjBZIu11+T0= nazar@fedora
