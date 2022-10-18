@@ -62,7 +62,8 @@
 необходимыми и достаточными правами. Не стоит использовать права суперпользователя
 2. Подготовьте [backend](https://www.terraform.io/docs/language/settings/backends/index.html) для Terraform:
    а. Рекомендуемый вариант: [Terraform Cloud](https://app.terraform.io/)
-![img_1.png](img_1.png)
+![img_22.png](img_22.png) 
+
    б. Альтернативный вариант: S3 bucket в созданном YC аккаунте.
 3. Настройте [workspaces](https://www.terraform.io/docs/language/state/workspaces.html)
    а. Рекомендуемый вариант: создайте два workspace: *stage* и *prod*. В случае выбора этого варианта все последующие шаги должны учитывать факт существования нескольких workspace.  
