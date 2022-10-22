@@ -19,9 +19,6 @@ receivers:
         auth_password: `1qazxsw2
         auth_resolved: true
 
-#    webhook_configs:
-#      - url: 'http://127.0.0.1:5001/'
-
 inhibit_rules:
   - source_match:
       severity: 'critical'

@@ -7,12 +7,12 @@ gitlab_rails['gitlab_email_display_name'] = "{{gitlab_email_display_name}}"
 gitlab_rails['gitlab_support_email'] = "{{gitlab_support_email}}"
 
 gitlab_rails['gitlab_ssh_host'] = "{{gitlab_ssh_host}}"
-gitlab_rails['time_zone'] = "{{gitlab_time_zone}}"
 
 ##
 # NGINX config for main gitlab
 ##
 external_url "{{gitlab_nginx_external_url}}"
+
 
 {% if gitlab_nginx_ssl_enable %}
 nginx['redirect_http_to_https'] = {{gitlab_nginx_redirect_http_to_https}}
@@ -27,11 +27,7 @@ nginx['custom_gitlab_server_config'] = "{{gitlab_nginx_custom_server_config}}"
 ##
 registry_external_url "{{gitlab_registry_nginx_external_url}}"
 
-{% if gitlab_registry_nginx_ssl_enable %}
-registry_nginx['redirect_http_to_https'] = {{gitlab_registry_nginx_redirect_http_to_https}}
-registry_nginx['ssl_certificate']= "{{gitlab_registry_nginx_ssl_certificate}}"
-registry_nginx['ssl_certificate_key'] = "{{gitlab_registry_nginx_ssl_certificate_key}}"
-{% endif %}
+
 registry_nginx['custom_gitlab_server_config']="{{gitlab_registry_nginx_custom_server_config}}"
 
 

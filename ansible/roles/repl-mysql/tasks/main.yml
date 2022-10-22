@@ -15,7 +15,6 @@
     line: "{{ item }}"
     state: present
   with_items:
-#    - '[mysqld]'
     - 'bind-address = 0.0.0.0'
     - 'server-id = 1'
     - 'log_bin = /var/log/mysql/mysql-bin.log'
@@ -25,12 +24,10 @@
 - name: set my.cnf slave
   lineinfile:
     path: /etc/mysql/mariadb.conf.d/50-server.cnf
-#    regexp: "^bind-address"
     insertafter: 'EOF'
     line: "{{ item }}"
     state: present
   with_items:
-#    - '[mysqld]'
     - 'bind-address = 0.0.0.0'
     - 'server-id = 2'
     - 'relay-log = /var/log/mysql/mysql-relay-bin.log'
@@ -53,7 +50,6 @@
     state: present
     login_user: root
     login_password: "{{ mysql_root_password }}"
-#  when: mysql_replication_role == 'master'
 
 - name: Create user master
   community.mysql.mysql_user:
@@ -100,21 +96,18 @@
 - name: Stop slave repl
   community.mysql.mysql_replication:
     mode: stopreplica
-#    primary_auto_position: true
     primary_host: "{{ mysql_replication_master }}"
     primary_user: "{{ item.name }}"
     primary_password: "{{ item.password }}"
     login_host: localhost
     login_user: root
     login_password: "{{ mysql_root_password }}"
-#    config_file: ""
   with_items: "{{ mysql_replication_user }}"
   when: mysql_replication_role == 'slave'
 
 - name: Configure slave repl
   community.mysql.mysql_replication:
     mode: changeprimary
-#    primary_auto_position: true
     primary_host: "{{ mysql_replication_master }}"
     primary_user: "{{ item.name }}"
     primary_password: "{{ item.password }}"
@@ -123,7 +116,6 @@
     login_host: localhost
     login_user: root
     login_password: "{{ mysql_root_password }}"
-#    config_file: ""
   with_items: "{{ mysql_replication_user }}"
   when: mysql_replication_role == 'slave'
 
@@ -137,7 +129,6 @@
     login_host: localhost
     login_user: root
     login_password: "{{ mysql_root_password }}"
-#    config_file: ""
   with_items: "{{ mysql_replication_user }}"
   when: mysql_replication_role == 'slave'
 
@@ -151,7 +142,6 @@
     login_host: localhost
     login_user: root
     login_password: "{{ mysql_root_password }}"
-#    config_file: ""
   with_items: "{{ mysql_replication_user }}"
   when: mysql_replication_role == 'slave'
   register: slave_status

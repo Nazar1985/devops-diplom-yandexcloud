@@ -41,12 +41,7 @@ resource "local_file" "inventory" {
     ansible_user=ubuntu
     ansible_ssh_common_args="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -J ubuntu@${yandex_compute_instance.nat-instance.network_interface.0.nat_ip_address}"
 
-    [monitor]
-    monitoring.mymind.su ansible_host=${yandex_compute_instance.monitor.network_interface.0.ip_address}
 
-    [monitor:vars]
-    ansible_user=ubuntu
-    ansible_ssh_common_args="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -J ubuntu@${yandex_compute_instance.nat-instance.network_interface.0.nat_ip_address}"
 
     DOC
 
@@ -58,9 +53,15 @@ filename = "../ansible/inventory"
     yandex_compute_instance.app,
     yandex_compute_instance.gitlab,
     yandex_compute_instance.runner,
-    yandex_compute_instance.monitor
+#    yandex_compute_instance.monitor
   ]
 }
 
 
 
+#    [monitor]
+#    monitoring.mymind.su ansible_host=${yandex_compute_instance.monitor.network_interface.0.ip_address}
+#
+#    [monitor:vars]
+#    ansible_user=ubuntu
+#    ansible_ssh_common_args="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -J ubuntu@${yandex_compute_instance.nat-instance.network_interface.0.nat_ip_address}"

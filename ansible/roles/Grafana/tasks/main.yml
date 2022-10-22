@@ -55,26 +55,27 @@
     regexp: "^;disable_initial_admin_creation = true"
     line: "disable_initial_admin_creation = false"
 
-- name: Copy Datasource for Grafana
-  grafana_datasource:
-    name: "prometheus-local"
-    grafana_url: "http://localhost:3000"
-    grafana_user: "{{ grafana_admin_user }}"
-    grafana_password: "{{ grafana_admin_pass }}"
-    org_id: "1"
-    ds_type: "prometheus"
-    ds_url: "http://localhost:9090"
-  changed_when: false
+#- name: Copy Datasource for Grafana
+#  grafana_datasource:
+#    name: "prometheus-local"
+#    grafana_url: "http://192.168.20.60:3000"
+#    grafana_user: "{{ grafana_admin_user }}"
+#    grafana_password: "{{ grafana_admin_pass }}"
+#    org_id: "1"
+#    ds_type: "prometheus"
+#    ds_url: "http://192.168.20.60:9090"
+#  changed_when: false
 
 - name: Copy Dashboards for Grafana
   grafana_dashboard:
-    grafana_url: "http://localhost:3000"
-    grafana_user: "{{ grafana_admin_user }}"
-    grafana_password: "{{ grafana_admin_pass }}"
+    grafana_url: "http://192.168.20.60:3000"
+    grafana_user: "admin"
+    grafana_password: "admin"
     org_id: 1
     state: export
     uid: "8010"
     path: "/var/lib/grafana/8010.json"
+  tags: grafcopy
 
 - name: Activate Dashboards for Node Exporter
   template:

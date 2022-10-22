@@ -55,24 +55,24 @@
     - Nginx restart
   tags: proxy add
 
-#- name: Install Certbot
-#  shell: "sudo snap install --classic certbot"
-#
-#
-#- name: Set link from Certbot
-#  file:
-#    src: "/snap/bin/certbot"
-#    path: "/usr/bin/certbot"
-#    state: link
-#
-#- name: Install letsencrypt certificates
-#  command:
-#    cmd: "sudo certbot --nginx --noninteractive --agree-tos --email n.zastavnuy@gmail.com -d {{ item }}"
-#  loop:
-#    - "www.mymind.su"
-#    - "gitlab.mymind.su"
-#    - "alertmanager.mymind.su"
-#    - "grafana.mymind.su"
-#    - "prometheus.mymind.su"
-#  notify:
-#    - Nginx restart
+- name: Install Certbot
+  shell: "sudo snap install --classic certbot"
+
+
+- name: Set link from Certbot
+  file:
+    src: "/snap/bin/certbot"
+    path: "/usr/bin/certbot"
+    state: link
+
+- name: Install letsencrypt certificates
+  command:
+    cmd: "sudo certbot --nginx --noninteractive --agree-tos --email n.zastavnuy@gmail.com -d {{ item }}"
+  loop:
+    - "www.mymind.su"
+    - "gitlab.mymind.su"
+    - "alertmanager.mymind.su"
+    - "grafana.mymind.su"
+    - "prometheus.mymind.su"
+  notify:
+    - Nginx restart

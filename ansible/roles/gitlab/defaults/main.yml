@@ -6,12 +6,11 @@ gitlab_support_email: 'gitlab@mymind.su'
 
 ##
 # Gitlab general stuff
-gitlab_ssh_host: 'gitlab.mymind.su'
-gitlab_time_zone: 'Europe/Moscow'
+gitlab_ssh_host: '192.168.20.40'
 
 ##
 # Gitlab primary NGINX
-gitlab_nginx_external_url: 'http://gitlab.mymind.su'
+gitlab_nginx_external_url: 'http://192.168.20.40'
 gitlab_nginx_ssl_enable: false
 gitlab_nginx_redirect_http_to_https: 'false'
 gitlab_nginx_ssl_certificate: '/etc/letsencrypt/live/gitlab.example.com/fullchain.pem'
@@ -23,3 +22,4 @@ gitlab_nginx_custom_server_config: 'location ^~ /.well-known {\n alias /var/www/
 gitlab_registry_nginx_external_url: 'http://registry.mymind.su'
 gitlab_registry_nginx_ssl_enable: false
 gitlab_registry_nginx_custom_server_config: 'location ^~ /.well-known {\n alias /var/www/letsencrypt/.well-known;\n}\n'
+

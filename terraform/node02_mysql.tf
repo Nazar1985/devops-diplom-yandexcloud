@@ -28,9 +28,9 @@ resource "yandex_compute_instance" "db" {
   }
 
 
-#  scheduling_policy {
-#    preemptible = true
-#  }
+  scheduling_policy {
+    preemptible = true
+  }
 
   metadata = {
     #    user-data = "${file("./user-data")}"

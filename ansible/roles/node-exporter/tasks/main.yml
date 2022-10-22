@@ -63,18 +63,6 @@
   notify: reload_daemon_and_restart_node_exporter
 - meta: flush_handlers
 
-#- name: install script
-#  template:
-#    src: docker-entrypoint.sh
-#    dest: /etc/node_exporter/docker-entrypoint.sh
-#    owner: root
-#    group: root
-#    mode: 0755
-#  notify: reload_daemon_and_restart_node_exporter
-#
-#- name: run script
-#  script: /etc/node_exporter/docker-entrypoint.sh
-
 - name: service always started
   systemd:
     name: node_exporter

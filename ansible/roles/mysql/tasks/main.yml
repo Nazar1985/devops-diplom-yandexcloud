@@ -102,9 +102,6 @@
   with_items:
     - "{{ ansible_hostname }}"
     - localhost
-#  tags:
-#    - set pass
-#  when: mysql_replication_role == 'master'
 
 - name: ReStart MariaDB
   service:
